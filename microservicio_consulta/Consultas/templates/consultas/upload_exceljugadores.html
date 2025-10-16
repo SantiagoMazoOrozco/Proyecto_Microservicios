@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subir Archivo Excel de Jugadores</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Subir Archivo Excel de Jugadores</h1>
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="excel_file">Selecciona un archivo Excel</label>
+                <input type="file" class="form-control" id="excel_file" name="excel_file" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Subir</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Consultar Información de Set</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="text-center mb-4">Consultar Información de Set por ID</h1>
+    <form id="set-info-form" class="mb-4">
+        <div class="form-group">
+            <input type="text" class="form-control" id="set_id" placeholder="Ingrese el ID del set">
+        </div>
+        <div class="text-center">
+            <button type="submit" class="btn btn-primary">Consultar</button>
+        </div>
+    </form>
+    <div id="set-info-result"></div>
+</div>
+<script>
+document.getElementById('set-info-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    const setId = document.getElementById('set_id').value;
+    const resultDiv = document.getElementById('set-info-result');
+    resultDiv.innerHTML = 'Cargando...';
+    try {
+        const response = await fetch(`/api/get_set_info/?set_id=${setId}`);
+        if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`Error en la respuesta del servidor: ${errorText}`);
+        }
+        const data = await response.json();
+        if (!data) {
+            resultDiv.innerHTML = 'No se encontró información para ese set.';
+            return;
+        }
+        let html = `<h3>Información del Set</h3>
+        <table class="table table-bordered">
+            <tr><th>ID Set</th><td>${data.id}</td></tr>
+            <tr><th>Fase</th><td>${data.phaseGroup?.phase?.name || ''}</td></tr>
+            <tr><th>Grupo</th><td>${data.phaseGroup?.displayIdentifier || ''}</td></tr>
+            <tr><th>Evento</th><td>${data.event?.name || ''}</td></tr>
+            <tr><th>Torneo</th><td>${data.event?.tournament?.name || ''}</td></tr>
+            <tr><th>Ronda</th><td>${data.fullRoundText || data.round || ''}</td></tr>
+            <tr><th>Ganador</th><td>${data.winnerId || ''}</td></tr>
+            <tr><th>Jugadores</th>
+                <td>
+                    ${(data.slots || []).map(s => s.entrant ? s.entrant.name + ' (ID: ' + s.entrant.id + ')' : '').join('<br>')}
+                </td>
+            </tr>
+            <tr><th>Juegos</th>
+                <td>
+                    ${(data.games || []).map(g =>
+                        `Juego ${g.orderNum}: Ganador ID ${g.winnerId}<br>` +
+                        (g.selections || []).map(sel =>
+                            `${sel.entrant?.name || ''} (${sel.entrant?.id || ''}) - Personaje: ${sel.character?.name || ''} (${sel.character?.id || ''})`
+                        ).join('<br>')
+                    ).join('<hr>')
+                    }
+                </td>
+            </tr>
+        </table>`;
+        resultDiv.innerHTML = html;
+    } catch (error) {
+        resultDiv.innerHTML = `Error: ${error.message}`;
+    }
+});
+</script>
+</body>
+</html>

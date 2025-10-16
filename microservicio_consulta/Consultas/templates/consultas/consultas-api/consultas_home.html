@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Consultas Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right,rgb(25, 24, 26),rgb(32, 45, 68));
+            color: #fff;
+        }
+        .nav-link {
+            color: #fff !important;
+        }
+        .nav-link:hover {
+            color: #000 !important;
+            background-color: #fff !important;
+        }
+        .footer {
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid vh-100 d-flex flex-column">
+        <div class="row flex-grow-1 justify-content-center align-items-center">
+            <div class="col text-center">
+                <h1 class="display-4 mb-3">Bienvenido</h1>
+                <p class="lead mb-4">Seleccione una opción para continuar:</p>
+                <nav>
+                    <ul class="nav justify-content-center">
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light mx-2" href="{% url 'get_event_id_page' %}">
+                                <i class="fas fa-id-card"></i> Obtener ID del Evento
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light mx-2" href="{% url 'get_sets_by_tournament_view' %}">
+                                <i class="fas fa-trophy"></i> Obtener Sets por Torneo
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light mx-2" href="{% url 'get_event_info_page' %}">
+                                <i class="fas fa-info-circle"></i> Obtener Información del Evento
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light mx-2" href="{% url 'get_player_info_page' %}">
+                                <i class="fas fa-user"></i> Consultar Información de Jugador
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light mx-2" href="{% url 'get_set_info_view' %}">
+                                <i class="fas fa-gamepad"></i> Consultar Información de Set
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link btn btn-outline-light mx-2" href="{% url 'home_page' %}">
+                                <i class="fas fa-home"></i> Inicio
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+        <footer class="footer mt-auto py-3 text-center">
+            <div class="container">
+                <span>© 2025 SmaroStats-S. Todos los derechos reservados.</span>
+            </div>
+        </footer>
+    </div>
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>

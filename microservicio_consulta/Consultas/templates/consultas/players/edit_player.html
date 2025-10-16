@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Jugador</title>
+</head>
+<body>
+    <h1>Editar Jugador</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="first_name">Nombre:</label>
+        <input type="text" id="first_name" name="first_name" value="{{ player.first_name }}"><br>
+
+        <label for="last_name">Apellido:</label>
+        <input type="text" id="last_name" name="last_name" value="{{ player.last_name }}"><br>
+
+        <label for="nickname">Apodo:</label>
+        <input type="text" id="nickname" name="nickname" value="{{ player.nickname }}"><br>
+
+        <label for="country">País:</label>
+        <input type="text" id="country" name="country" value="{{ player.country }}"><br>
+
+        <label for="zone">Zona:</label>
+        <input type="text" id="zone" name="zone" value="{{ player.zone }}"><br>
+
+        <label for="city">Ciudad:</label>
+        <input type="text" id="city" name="city" value="{{ player.city }}"><br>
+
+        <label for="team">Equipo:</label>
+        <input type="text" id="team" name="team" value="{{ player.team }}"><br>
+
+        <label for="team_secondary">Equipo Secundario:</label>
+        <input type="text" id="team_secondary" name="team_secondary" value="{{ player.team_secondary }}"><br>
+
+        <label for="play_offline">Juega Offline:</label>
+        <input type="checkbox" id="play_offline" name="play_offline" {% if player.play_offline %}checked{% endif %}><br>
+
+        <label for="play_online">Juega Online:</label>
+        <input type="checkbox" id="play_online" name="play_online" {% if player.play_online %}checked{% endif %}><br>
+
+        <label for="main_character">Personaje Principal:</label>
+        <input type="text" id="main_character" name="main_character" value="{{ player.main_character }}"><br>
+
+        <label for="second_option_player">Segunda Opción:</label>
+        <input type="text" id="second_option_player" name="second_option_player" value="{{ player.second_option_player }}"><br>
+
+        <label for="third_option_player">Tercera Opción:</label>
+        <input type="text" id="third_option_player" name="third_option_player" value="{{ player.third_option_player }}"><br>
+
+        <label for="twitter">Twitter:</label>
+        <input type="text" id="twitter" name="twitter" value="{{ player.twitter }}"><br>
+
+        <label for="instagram">Instagram:</label>
+        <input type="text" id="instagram" name="instagram" value="{{ player.instagram }}"><br>
+
+        <label for="tiktok">TikTok:</label>
+        <input type="text" id="tiktok" name="tiktok" value="{{ player.tiktok }}"><br>
+
+        <label for="user_startgg">Usuario StartGG:</label>
+        <input type="text" id="user_startgg" name="user_startgg" value="{{ player.user_startgg }}"><br>
+
+        <label for="code_startgg">Código StartGG:</label>
+        <input type="text" id="code_startgg" name="code_startgg" value="{{ player.code_startgg }}"><br>
+
+        <label for="url_startgg">URL StartGG:</label>
+        <input type="text" id="url_startgg" name="url_startgg" value="{{ player.url_startgg }}"><br>
+
+        <label for="url_smashdata">URL SmashData:</label>
+        <input type="text" id="url_smashdata" name="url_smashdata" value="{{ player.url_smashdata }}"><br>
+
+        <label for="combined_teams">Equipos Combinados:</label>
+        <input type="text" id="combined_teams" name="combined_teams" value="{{ player.combined_teams }}"><br>
+
+        <label for="combined_characters">Personajes Combinados:</label>
+        <input type="text" id="combined_characters" name="combined_characters" value="{{ player.combined_characters }}"><br>
+
+        <label for="logo_team_1">Logo Equipo 1:</label>
+        <input type="text" id="logo_team_1" name="logo_team_1" value="{{ player.logo_team_1 }}"><br>
+
+        <label for="logo_team_2">Logo Equipo 2:</label>
+        <input type="text" id="logo_team_2" name="logo_team_2" value="{{ player.logo_team_2 }}"><br>
+
+        <label for="logo_main">Logo Principal:</label>
+        <input type="text" id="logo_main" name="logo_main" value="{{ player.logo_main }}"><br>
+
+        <label for="logo_2">Logo 2:</label>
+        <input type="text" id="logo_2" name="logo_2" value="{{ player.logo_2 }}"><br>
+
+        <label for="logo_3">Logo 3:</label>
+        <input type="text" id="logo_3" name="logo_3" value="{{ player.logo_3 }}"><br>
+
+        <button type="submit">Guardar</button>
+    </form>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Jugadores</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        input {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Lista de Jugadores</h1>
+
+        <!-- Botones de Inicio y Crear Jugador -->
+        <div class="text-right mb-3">
+            <a href="{% url 'home' %}" class="btn btn-secondary">Inicio</a>
+            <a href="{% url 'player_create' %}" class="btn btn-success">Crear Jugador</a>
+        </div>
+
+        <!-- Búsqueda general -->
+        <input class="form-control mb-3" id="generalSearch" type="text" placeholder="Buscar en todas las columnas..." onkeyup="filterGeneral()">
+
+        <!-- Contenedor con desplazamiento horizontal -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="text" id="filterID" onkeyup="filterTable(0)" placeholder="Buscar por ID"></th>
+                        <th><input type="text" id="filterGamertag" onkeyup="filterTable(1)" placeholder="Buscar por GamerTag"></th>
+                        <th><input type="text" id="filterSlug" onkeyup="filterTable(2)" placeholder="Buscar por Slug"></th>
+                        <th><input type="text" id="filterPrefijo" onkeyup="filterTable(3)" placeholder="Buscar por Prefijo"></th>
+                        <th><input type="text" id="filterNombre" onkeyup="filterTable(4)" placeholder="Buscar por Nombre"></th>
+                        <th><input type="text" id="filterPais" onkeyup="filterTable(5)" placeholder="Buscar por País"></th>
+                        <th><input type="text" id="filterDepartamento" onkeyup="filterTable(6)" placeholder="Buscar por Departamento"></th>
+                        <th><input type="text" id="filterRegion" onkeyup="filterTable(7)" placeholder="Buscar por Region"></th>
+                        <th><input type="text" id="filterCiudad" onkeyup="filterTable(8)" placeholder="Buscar por Ciudad"></th>
+                        <th><input type="text" id="filterTwitter" onkeyup="filterTable(9)" placeholder="Buscar por Twitter"></th>
+                        <th><input type="text" id="filterDiscord" onkeyup="filterTable(10)" placeholder="Buscar por Discord"></th>
+                        <th><input type="text" id="filterTwitch" onkeyup="filterTable(11)" placeholder="Buscar por Twitch"></th>
+                    </tr>
+                    <tr>
+                        <th>ID</th>
+                        <th>GamerTag</th>
+                        <th>Slug</th>
+                        <th>Prefijo</th>
+                        <th>Nombre</th>
+                        <th>País</th>
+                        <th>Departamento</th>
+                        <th>Region</th>
+                        <th>Ciudad</th>
+                        <th>Twitter</th>
+                        <th>Discord</th>
+                        <th>Twitch</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="playerTable">
+                    {% for player in players %}
+                    <tr>
+                        <td>{{ player.ID }}</td>
+                        <td>{{ player.Gamertag }}</td>
+                        <td>{{ player.Slug }}</td>
+                        <td>{{ player.Prefijo }}</td>
+                        <td>{{ player.Nombre }}</td>
+                        <td>{{ player.Pais }}</td>
+                        <td>{{ player.Departamento }}</td>
+                        <td>{{ player.Region }}</td>
+                        <td>{{ player.Ciudad }}</td>
+                        <td>{{ player.Twitter }}</td>
+                        <td>{{ player.Discord }}</td>
+                        <td>{{ player.Twitch }}</td>
+                        <td>
+                            {% if player.ID %}
+                                <a href="{% url 'edit_player' player.ID %}" class="btn btn-primary">Editar</a>
+                                <a href="{% url 'delete_player' player.ID %}" class="btn btn-danger">Eliminar</a>
+                            {% else %}
+                                <span class="text-muted">Sin ID</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // Filtro por columna
+        function filterTable(columnIndex) {
+            var input, filter, table, tr, td, i, txtValue;
+            table = document.getElementById("playerTable");
+            tr = table.getElementsByTagName("tr");
+
+            // Ajusta los IDs de los inputs de filtro según el nuevo orden
+            var columnNames = ["ID", "Gamertag", "Slug", "Prefijo", "Nombre", "Pais", "Departamento", "Region", "Ciudad", "Twitter", "Discord", "Twitch"];
+            input = document.getElementById("filter" + columnNames[columnIndex]);
+            filter = input.value.toUpperCase();
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[columnIndex];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Filtro general (sin cambios)
+        function filterGeneral() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("generalSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("playerTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                tr[i].style.display = "none";
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

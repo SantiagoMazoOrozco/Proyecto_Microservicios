@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Player Info</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Obtener Información del Jugador</h1>
+        <div class="mb-3">
+            <label for="search-method" class="form-label">Método de Búsqueda:</label>
+            <select class="form-control" id="search-method">
+                <option value="id">Buscar por ID</option>
+                <option value="slug">Buscar por Id Slug</option>
+                <option value="id_gamerTag">Buscar por Id Gamertag</option>
+            </select>
+        </div>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="player-input" placeholder="Ingresa el valor correspondiente">
+        </div>
+        <div class="text-center mb-4">
+            <button class="btn btn-primary" id="get-info-btn">Obtener Información</button>
+        </div>
+        <div class="text-center mb-4">
+            <button class="btn btn-success" id="download-excel-btn" style="display: none;">Descargar Excel</button>
+        </div>
+        <div class="text-center mb-4">
+            <a href="{% url 'consultas_home' %}" class="btn btn-secondary">Volver a Consultas</a>
+        </div>
+        <div id="loading" class="text-center" style="display: none;">Cargando...</div>
+        <div id="error" class="text-center text-danger" style="display: none;"></div>
+        <div id="player-details" class="text-center mb-4" style="display: none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>GamerTag</th>
+                        <th>Slug</th>
+                        <th>Prefijo</th>
+                        <th>Nombre</th>
+                        <th>Pais</th>
+                        <th>Departamento</th>
+                        <th>Region</th>
+                        <th>Ciudad</th>
+                        <th>Twitter</th>
+                        <th>Discord</th>
+                        <th>Twitch</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="player-ID"></td>
+                        <td id="player-GamerTag"></td>
+                        <td id="player-Slug"></td>
+                        <td id="player-Prefijo"></td>
+                        <td id="player-Nombre"></td>
+                        <td id="player-Pais"></td>
+                        <td id="player-Departamento"></td>
+                        <td id="player-Region"></td>
+                        <td id="player-Ciudad"></td>
+                        <td id="player-Twitter"></td>
+                        <td id="player-Discord"></td>
+                        <td id="player-Twitch"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        document.getElementById('get-info-btn').addEventListener('click', async function() {
+            const searchMethod = document.getElementById('search-method').value;
+            const playerInput = document.getElementById('player-input').value.trim();
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const playerDetailsDiv = document.getElementById('player-details');
+
+            loadingDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            playerDetailsDiv.style.display = 'none';
+
+            if (!playerInput) {
+                errorDiv.textContent = 'Por favor, ingresa un valor para buscar.';
+                errorDiv.style.display = 'block';
+                loadingDiv.style.display = 'none';
+                return;
+            }
+
+            try {
+                const response = await fetch(`/consultas/get_player_info/?method=${searchMethod}&input=${encodeURIComponent(playerInput)}`);
+                if (!response.ok) throw new Error('Error al obtener la información del jugador');
+                const details = await response.json();
+
+                // Asignar los valores a la tabla con los nuevos IDs y nombres
+                document.getElementById('player-ID').innerText = details.ID || 'N/A';
+                document.getElementById('player-GamerTag').innerText = details.GamerTag || 'N/A';
+                document.getElementById('player-Slug').innerText = (details.Slug || '').replace('user/', '') || 'N/A';
+                document.getElementById('player-Prefijo').innerText = details.Prefijo || 'N/A';
+                document.getElementById('player-Nombre').innerText = details.Nombre || 'N/A';
+                document.getElementById('player-Pais').innerText = details.Pais || 'N/A';
+                document.getElementById('player-Departamento').innerText = details.Departamento || 'N/A';
+                document.getElementById('player-Region').innerText = details.Region || 'N/A';
+                document.getElementById('player-Ciudad').innerText = details.Ciudad || 'N/A';
+                document.getElementById('player-Twitter').innerText = details.Twitter || 'N/A';
+                document.getElementById('player-Discord').innerText = details.Discord || 'N/A';
+                document.getElementById('player-Twitch').innerText = details.Twitch || 'N/A';
+
+                playerDetailsDiv.style.display = 'block';
+                document.getElementById('download-excel-btn').style.display = 'block';
+                document.getElementById('download-excel-btn').onclick = function() {
+                    window.location.href = `/download_player_excel/?player_id=${details.ID}`;
+                };
+            } catch (error) {
+                errorDiv.textContent = error.message;
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

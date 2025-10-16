@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Event ID Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Obtener ID del Evento</h1>
+        <form id="event-id-form" method="post" action="{% url 'get_event_id' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="text" class="form-control" id="event_url" name="event_url" placeholder="Pega aquí el link de start.gg (opcional)">
+            </div>
+            <div class="mb-3">
+                <input type="text" class="form-control" id="tournament_name" name="tournament_name" placeholder="Ingrese el nombre del torneo">
+            </div>
+            <div class="mb-3">
+                <input type="text" class="form-control" id="event_name" name="event_name" placeholder="Ingrese el nombre del evento">
+            </div>
+            <div class="text-center mb-4">
+                <button type="submit" class="btn btn-primary">Obtener ID del Evento</button>
+            </div>
+        </form>
+        <div class="text-center mb-4">
+            <a href="{% url 'consultas_home' %}" class="btn btn-secondary">Volver a Consultas</a>
+        </div>
+        <div id="result" class="text-center"></div>
+        {% if event_id %}
+            <div class="alert alert-success mt-4">
+                Event ID: {{ event_id }}
+            </div>
+        {% endif %}
+    </div>
+    <script>
+        // Extrae los valores del link y los coloca en los campos correspondientes
+        document.getElementById('event_url').addEventListener('input', function() {
+            const url = this.value.trim();
+            const tournamentInput = document.getElementById('tournament_name');
+            const eventInput = document.getElementById('event_name');
+            const match = url.match(/\/tournament\/([^/]+)\/event\/([^/]+)/);
+            if (match) {
+                tournamentInput.value = match[1];
+                eventInput.value = match[2];
+            }
+        });
+
+        document.getElementById('event-id-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerText = 'Cargando...';
+
+            try {
+                const response = await fetch('{% url "get_event_id" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (data.event_id) {
+                        resultDiv.innerText = `Event ID: ${data.event_id}`;
+                    } else {
+                        resultDiv.innerText = 'Event ID no encontrado';
+                    }
+                } else {
+                    resultDiv.innerText = `Error: ${data.error || 'Error en la respuesta del servidor'}`;
+                }
+            } catch (error) {
+                resultDiv.innerText = `Error: ${error.message}`;
+            }
+        });
+    </script>
+</body>
+</html>

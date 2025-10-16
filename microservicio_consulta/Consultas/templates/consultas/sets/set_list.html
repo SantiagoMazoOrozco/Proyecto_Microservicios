@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Sets</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            min-width: 150px;
+        }
+        td {
+            min-width: 150px;
+        }
+        input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 6px;
+            margin-bottom: 10px;
+        }
+        .table-responsive {
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Lista de Sets</h1>
+
+        <!-- Botón de Inicio -->
+        <div class="text-right mb-3">
+            <a href="{% url 'home_page' %}" class="btn btn-primary">Inicio</a>
+        </div>
+
+        <!-- Búsqueda general -->
+        <input class="form-control mb-3" id="generalSearch" type="text" placeholder="Buscar en todas las columnas..." onkeyup="filterGeneral()">
+
+        <!-- Contenedor con desplazamiento horizontal -->
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th><input type="text" id="filterID" onkeyup="filterTable(0)" placeholder="Buscar por ID"></th>
+                        <th><input type="text" id="filterTournamentID" onkeyup="filterTable(1)" placeholder="Buscar por ID del Torneo"></th>
+                        <th><input type="text" id="filterPlayer1ID" onkeyup="filterTable(2)" placeholder="Buscar por ID Jugador 1"></th>
+                        <th><input type="text" id="filterPlayer1" onkeyup="filterTable(3)" placeholder="Buscar por Jugador 1"></th>
+                        <th><input type="text" id="filterPlayer1Score" onkeyup="filterTable(4)" placeholder="Buscar por Puntuación Jugador 1"></th>
+                        <th><input type="text" id="filterPlayer2ID" onkeyup="filterTable(5)" placeholder="Buscar por ID Jugador 2"></th>
+                        <th><input type="text" id="filterPlayer2" onkeyup="filterTable(6)" placeholder="Buscar por Jugador 2"></th>
+                        <th><input type="text" id="filterPlayer2Score" onkeyup="filterTable(7)" placeholder="Buscar por Puntuación Jugador 2"></th>
+                        <th><input type="text" id="filterPhase" onkeyup="filterTable(8)" placeholder="Buscar por Fase"></th>
+                        <th><input type="text" id="filterEventName" onkeyup="filterTable(9)" placeholder="Buscar por Nombre del Evento"></th>
+                        <th><input type="text" id="filterTournamentName" onkeyup="filterTable(10)" placeholder="Buscar por Nombre del Torneo"></th>
+                        <th><input type="text" id="filterPlayer1Characters" onkeyup="filterTable(11)" placeholder="Buscar por Personajes Jugador 1"></th>
+                        <th><input type="text" id="filterPlayer2Characters" onkeyup="filterTable(12)" placeholder="Buscar por Personajes Jugador 2"></th>
+                    </tr>
+                    <tr>
+                        <th>ID Torneo</th>
+                        <th>ID Set</th>
+                        <th>ID Jugador 1</th>
+                        <th>Jugador 1</th>
+                        <th>Puntuación Jugador 1</th>
+                        <th>ID Jugador 2</th>
+                        <th>Jugador 2</th>
+                        <th>Puntuación Jugador 2</th>
+                        <th>Fase</th>
+                        <th>Ronda</th>
+                        <th>Nombre del Evento</th>
+                        <th>Nombre del Torneo</th>
+                        <th>Personajes Jugador 1</th>
+                        <th>Personajes Jugador 2</th>
+                    </tr>
+                </thead>
+                <tbody id="setTable">
+                    {% for set in sets %}
+                    <tr>
+                        <td>{{ set.id_torneo }}</td>
+                        <td>{{ set.id_set }}</td>
+                        <td>{{ set.id_player_1 }}</td>
+                        <td>{{ set.player_1 }}</td>
+                        <td>{{ set.player_1_score }}</td>
+                        <td>{{ set.id_player_2 }}</td>
+                        <td>{{ set.player_2 }}</td>
+                        <td>{{ set.player_2_score }}</td>
+                        <td>{{ set.phase }}</td>
+                        <td>{{ set.ronda|default:"Bracket" }}</td>
+                        <td>{{ set.event_name }}</td>
+                        <td>{{ set.tournament_name }}</td>
+                        <td>{{ set.player_1_characters }}</td>
+                        <td>{{ set.player_2_characters }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Filtro por columna
+        function filterTable(columnIndex) {
+            var input, filter, table, tr, td, i, txtValue;
+            table = document.getElementById("setTable");
+            tr = table.getElementsByTagName("tr");
+
+            input = document.getElementById("filter" + getColumnName(columnIndex));
+            filter = input.value.toUpperCase();
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[columnIndex];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Obtener nombre de columna para los filtros
+        function getColumnName(columnIndex) {
+            var columnNames = [
+                "ID", "TournamentID", "Player1ID", "Player1", "Player1Score",
+                "Player2ID", "Player2", "Player2Score", "Phase", "EventName",
+                "TournamentName", "Player1Characters", "Player2Characters"
+            ];
+            return columnNames[columnIndex];
+        }
+
+        // Filtro general
+        function filterGeneral() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("generalSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("setTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                tr[i].style.display = "none"; // Inicialmente ocultar todas las filas
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break; // Terminar el bucle si se encuentra una coincidencia
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

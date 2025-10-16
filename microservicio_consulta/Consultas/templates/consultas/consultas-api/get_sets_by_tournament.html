@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Sets By Tournament</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Obtener Sets por Torneo</h1>
+        <form id="set-by-tournament-form" method="post" action="{% url 'get_sets_by_tournament_view' %}">
+            {% csrf_token %}
+            <div class="mb-3">
+                <input type="text" class="form-control" name="event_id" placeholder="Ingrese el ID del evento">
+            </div>
+            <div class="text-center mb-4">
+                <button type="submit" class="btn btn-primary">Obtener Sets</button>
+            </div>
+        </form>
+        <div class="text-center mb-4">
+            <a href="{% url 'consultas_home' %}" class="btn btn-secondary">Volver a Consultas</a>
+        </div>
+        <div class="text-center mb-4">
+            <button id="download-xlsx" class="btn btn-success" style="display: none;">Descargar XLSX</button>
+        </div>
+        <div id="sets" class="text-center"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script>
+        document.getElementById('set-by-tournament-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const resultDiv = document.getElementById('sets');
+            resultDiv.innerText = 'Cargando...';
+
+            try {
+                const response = await fetch('{% url "get_sets_by_tournament_view" %}', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    throw new Error(`Error en la respuesta del servidor: ${errorText}`);
+                }
+
+                const data = await response.json();
+                resultDiv.innerHTML = '';
+
+                if (data.length > 0) {
+                    const table = document.createElement('table');
+                    table.className = 'table table-striped';
+                    const thead = document.createElement('thead');
+                    thead.innerHTML = `
+                        <tr>
+                            <th>ID Torneo</th>
+                            <th>ID Set</th>
+                            <th>ID Jugador 1</th>
+                            <th>Jugador 1</th>
+                            <th>Puntuación Jugador 1</th>
+                            <th>ID Jugador 2</th>
+                            <th>Jugador 2</th>
+                            <th>Puntuación Jugador 2</th>
+                            <th>Fase</th>
+                            <th>Event Name</th>
+                            <th>Tournament Name</th>
+                            <th>Player 1 Characters</th>
+                            <th>Player 2 Characters</th>
+                        </tr>
+                    `;
+                    table.appendChild(thead);
+                    const tbody = document.createElement('tbody');
+                    const eventId = formData.get('event_id');
+                    data.forEach(set => {
+                        const tr = document.createElement('tr');
+                        const player1Characters = set.player1_characters.length > 0 ? set.player1_characters.join(', ') : 'N/A';
+                        const player2Characters = set.player2_characters.length > 0 ? set.player2_characters.join(', ') : 'N/A';
+                        tr.innerHTML = `
+                            <td>${set.id_torneo || eventId}</td>
+                            <td>${set.id}</td>
+                            <td>${set.player1_id || 'N/A'}</td>
+                            <td>${set.player1_name}</td>
+                            <td>${set.player1_score}</td>
+                            <td>${set.player2_id || 'N/A'}</td>
+                            <td>${set.player2_name}</td>
+                            <td>${set.player2_score}</td>
+                            <td>${set.phase_name}</td>
+                            <td>${set.event_name}</td>
+                            <td>${set.tournament_name}</td>
+                            <td>${player1Characters}</td>
+                            <td>${player2Characters}</td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    resultDiv.appendChild(table);
+                } else {
+                    resultDiv.innerText = 'No se encontraron sets.';
+                }
+                document.getElementById('download-xlsx').style.display = data.length > 0 ? 'block' : 'none';
+            } catch (error) {
+                resultDiv.innerText = `Error: ${error.message}`;
+                console.error('Error:', error);
+            }
+        });
+
+        document.getElementById('download-xlsx').addEventListener('click', function() {
+            const table = document.querySelector('#sets table');
+            if (!table) return;
+
+            const wb = XLSX.utils.table_to_book(table, { sheet: "Sets" });
+            XLSX.writeFile(wb, 'sets.xlsx');
+        });
+    </script>
+</body>
+</html>

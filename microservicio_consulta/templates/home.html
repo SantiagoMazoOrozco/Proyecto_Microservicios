@@ -1,0 +1,14 @@
+<form method="get">
+  <input type="text" name="q" placeholder="Buscar jugador..." value="{{ query }}">
+  <button type="submit">Buscar</button>
+</form>
+
+{% if players %}
+  <ul>
+    {% for player in players %}
+      <li><a href="{% url 'player_detail' player.id %}">{{ player.nickname }}</a></li>
+    {% endfor %}
+  </ul>
+{% elif query %}
+  <p>No se encontraron jugadores.</p>
+{% endif %}

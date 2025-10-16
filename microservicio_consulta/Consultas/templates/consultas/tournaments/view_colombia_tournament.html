@@ -1,0 +1,225 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Torneos en Colombia</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-cyborg-gaming.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <style>
+        .main-content-bg {
+            background: #1f2122;
+            border-radius: 2rem;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+            padding: 2rem 2rem 1rem 2rem;
+            margin-top: 2rem;
+        }
+        .main-title {
+            color: #fff;
+            font-weight: 700;
+            margin-bottom: 2rem;
+        }
+        .main-button {
+            background: #e75e8d;
+            color: #fff;
+            border-radius: 2rem;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+        .main-button:hover {
+            background: #ff7cae;
+            color: #fff;
+        }
+        th, td {
+            color: #fff;
+            background: #27292a;
+        }
+        th {
+            font-weight: 600;
+        }
+        .table-striped tbody tr:nth-of-type(odd) {
+            background-color: #232425;
+        }
+        .table-striped tbody tr:nth-of-type(even) {
+            background-color: #27292a;
+        }
+        .form-control {
+            background: #232425;
+            color: #fff;
+            border: none;
+        }
+        .form-control:focus {
+            background: #232425;
+            color: #fff;
+            border: 1px solid #e75e8d;
+            box-shadow: none;
+        }
+    </style>
+</head>
+<body style="background: #1f2122;">
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <a href="{% url 'home' %}" class="logo">
+                        <img src="{% static 'assets/images/logo.png' %}" alt="">
+                    </a>
+                    <ul class="nav">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'consultas_home' %}" class="active">Consultas</a></li>
+                    </ul>
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container main-content-bg">
+    <h1 class="main-title text-center">Lista de Torneos en Colombia</h1>
+
+    <div class="d-flex justify-content-between mb-3">
+        <a href="{% url 'home' %}" class="main-button">Inicio</a>
+        <a href="{% url 'add_tournament' %}" class="main-button" style="background: #4CAF50;">Crear Torneo</a>
+    </div>
+
+    <input class="form-control mb-3" id="generalSearch" type="text" placeholder="Buscar en todas las columnas..." onkeyup="filterGeneral()">
+
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th><input type="text" id="filterTournamentName" onkeyup="filterTable(0)" placeholder="Buscar por Nombre del Torneo" class="form-control"></th>
+                    <th><input type="text" id="filterWinner" onkeyup="filterTable(1)" placeholder="Buscar por Ganador" class="form-control"></th>
+                    <th><input type="text" id="filterAttendees" onkeyup="filterTable(2)" placeholder="Buscar por Asistentes" class="form-control"></th>
+                    <th><input type="text" id="filterRegion" onkeyup="filterTable(3)" placeholder="Buscar por Región" class="form-control"></th>
+                    <th><input type="text" id="filterPais" onkeyup="filterTable(4)" placeholder="Buscar por País" class="form-control"></th>
+                    <th><input type="text" id="filterDepartamento" onkeyup="filterTable(5)" placeholder="Buscar por Departamento" class="form-control"></th>
+                    <th><input type="text" id="filterCiudad" onkeyup="filterTable(6)" placeholder="Buscar por Ciudad" class="form-control"></th>
+                    <th><input type="text" id="filterDate" onkeyup="filterTable(7)" placeholder="Buscar por Fecha" class="form-control"></th>
+                    <th><input type="text" id="filterID" onkeyup="filterTable(8)" placeholder="Buscar por ID" class="form-control"></th>
+                    <th><input type="text" id="filterURL" onkeyup="filterTable(9)" placeholder="Buscar por URL" class="form-control"></th>
+                    <th><input type="text" id="filterTier" onkeyup="filterTable(10)" placeholder="Buscar por Tier" class="form-control"></th>
+                    <th></th>
+                </tr>
+                <tr>
+                    <th>Nombre del Torneo</th>
+                    <th>Ganador</th>
+                    <th>Asistentes</th>
+                    <th>Región</th>
+                    <th>País</th>
+                    <th>Departamento</th>
+                    <th>Ciudad</th>
+                    <th>Fecha</th>
+                    <th>ID</th>
+                    <th>URL</th>
+                    <th>Tier</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tournamentTable">
+                {% for tournament in tournaments %}
+                <tr>
+                    <td>{{ tournament.tournament_name }}</td>
+                    <td>{{ tournament.winner }}</td>
+                    <td>{{ tournament.attendees }}</td>
+                    <td>{{ tournament.region }}</td>
+                    <td>{{ tournament.pais }}</td>
+                    <td>{{ tournament.departamento }}</td>
+                    <td>{{ tournament.ciudad }}</td>
+                    <td>{{ tournament.date }}</td>
+                    <td>{{ tournament.id }}</td>
+                    <td><a href="{{ tournament.url }}" style="color:#e75e8d;">{{ tournament.url }}</a></td>
+                    <td>{{ tournament.tier }}</td>
+                    <td>
+                        <a href="{% url 'edit_tournament' tournament.id %}" class="btn btn-primary btn-sm">Editar</a>
+                        <a href="{% url 'delete_tournament' tournament.id %}" class="btn btn-danger btn-sm">Eliminar</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p style="color:#fff;">Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved.
+          <br>Design: <a href="https://templatemo.com" target="_blank" title="free CSS templates" style="color:#e75e8d;">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="{% static 'vendor/jquery/jquery.min.js' %}"></script>
+  <script src="{% static 'vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+  <script>
+        // Filtro por columna
+        function filterTable(columnIndex) {
+            var input, filter, table, tr, td, i, txtValue;
+            table = document.getElementById("tournamentTable");
+            tr = table.getElementsByTagName("tr");
+
+            input = document.getElementById("filter" + getColumnName(columnIndex));
+            filter = input.value.toUpperCase();
+
+            for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[columnIndex];
+                if (td) {
+                    txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                    } else {
+                        tr[i].style.display = "none";
+                    }
+                }
+            }
+        }
+
+        // Obtener nombre de columna para los filtros
+        function getColumnName(columnIndex) {
+            var columnNames = ["TournamentName", "Winner", "Attendees", "Region", "Pais", "Departamento", "Ciudad", "Date", "ID", "URL", "Tier"];
+            return columnNames[columnIndex];
+        }
+
+        // Filtro general
+        function filterGeneral() {
+            var input, filter, table, tr, td, i, j, txtValue;
+            input = document.getElementById("generalSearch");
+            filter = input.value.toUpperCase();
+            table = document.getElementById("tournamentTable");
+            tr = table.getElementsByTagName("tr");
+
+            for (i = 0; i < tr.length; i++) {
+                tr[i].style.display = "none"; // Inicialmente ocultar todas las filas
+                td = tr[i].getElementsByTagName("td");
+                for (j = 0; j < td.length; j++) {
+                    if (td[j]) {
+                        txtValue = td[j].textContent || td[j].innerText;
+                        if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                            tr[i].style.display = "";
+                            break; // Terminar el bucle si se encuentra una coincidencia
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

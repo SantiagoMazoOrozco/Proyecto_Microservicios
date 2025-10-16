@@ -1,0 +1,104 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subir Archivo Excel para Sets Colombia</title>
+    <link href="{% static 'vendor/bootstrap/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'assets/css/fontawesome.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/templatemo-cyborg-gaming.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/owl.css' %}">
+    <link rel="stylesheet" href="{% static 'assets/css/animate.css' %}">
+    <link rel="stylesheet" href="https://unpkg.com/swiper@7/swiper-bundle.min.css"/>
+    <style>
+      .main-content-bg {
+        background: #1f2122;
+        border-radius: 2rem;
+        box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+        padding: 2rem 2rem 1rem 2rem;
+        margin-top: 2rem;
+      }
+      .main-title {
+        color: #fff;
+        font-weight: 700;
+        margin-bottom: 2rem;
+      }
+      .main-button {
+        background: #e75e8d;
+        color: #fff;
+        border-radius: 2rem;
+        padding: 1rem 2.5rem;
+        font-size: 1.2rem;
+        font-weight: 600;
+        box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+        text-decoration: none;
+        transition: background 0.2s;
+      }
+      .main-button:hover {
+        background: #ff7cae;
+        color: #fff;
+      }
+      .form-control {
+        background: #232425;
+        color: #fff;
+        border: none;
+      }
+      .form-control:focus {
+        background: #232425;
+        color: #fff;
+        border: 1px solid #e75e8d;
+        box-shadow: none;
+      }
+      label {
+        color: #fff;
+      }
+    </style>
+</head>
+<body style="background: #1f2122;">
+  <!-- ***** Header Area Start ***** -->
+  <header class="header-area header-sticky">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <nav class="main-nav">
+                    <a href="{% url 'home_page' %}" class="logo">
+                        <img src="{% static 'assets/images/logo.png' %}" alt="">
+                    </a>
+                    <ul class="nav">
+                        <li><a href="{% url 'home_page' %}">Home</a></li>
+                        <li><a href="{% url 'consultas_home' %}" class="active">Consultas</a></li>
+                    </ul>
+                    <a class='menu-trigger'>
+                        <span>Menu</span>
+                    </a>
+                </nav>
+            </div>
+        </div>
+    </div>
+  </header>
+  <!-- ***** Header Area End ***** -->
+
+  <div class="container main-content-bg">
+    <h1 class="main-title text-center">Subir Archivo Excel para Sets Colombia</h1>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="excel_file">Selecciona un archivo Excel</label>
+            <input type="file" class="form-control" id="excel_file" name="file" required>
+        </div>
+        <button type="submit" class="main-button">Subir</button>
+    </form>
+  </div>
+
+  <footer>
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <p style="color:#fff;">Copyright © 2036 <a href="#">Cyborg Gaming</a> Company. All rights reserved.
+          <br>Design: <a href="https://templatemo.com" target="_blank" title="free CSS templates" style="color:#e75e8d;">TemplateMo</a></p>
+        </div>
+      </div>
+    </div>
+  </footer>
+</body>
+</html>

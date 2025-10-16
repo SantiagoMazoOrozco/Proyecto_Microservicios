@@ -1,0 +1,43 @@
+{
+  "info": {
+    "_postman_id": "consultas-api-collection",
+    "name": "Consultas API (Thunder Client)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://127.0.0.1:8000/health/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Get Event ID",
+      "request": {
+        "method": "POST",
+        "header": [
+          { "key": "Content-Type", "value": "application/json" }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"url\": \"https://www.start.gg/tournament/tropel-en-el-cafetal-iii/event/tropel-en-el-cafetal-iii\"\n}"
+        },
+        "url": {
+          "raw": "http://127.0.0.1:8000/api/get-event-id/",
+          "protocol": "http",
+          "host": ["127.0.0.1"],
+          "port": "8000",
+          "path": ["api","get-event-id"]
+        }
+      }
+    }
+  ]
+}

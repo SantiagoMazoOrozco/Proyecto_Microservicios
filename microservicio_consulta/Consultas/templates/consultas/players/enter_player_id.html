@@ -1,0 +1,22 @@
+<!-- myapp/templates/myapp/players/enter_player_id.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ingresar ID de Jugador</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Ingresar ID de Jugador</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="player_id">ID de Jugador</label>
+                <input type="text" class="form-control" id="player_id" name="player_id" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Enviar</button>
+        </form>
+    </div>
+</body>
+</html>

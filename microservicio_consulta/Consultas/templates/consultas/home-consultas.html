@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <style>
+        body {
+            background: linear-gradient(to right, #232526, #414345);
+            color: #ffffff;
+        }
+        .container {
+            background-color: #343a40;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            color: #ffffff;
+        }
+        h1 {
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        p {
+            color: #d3d3d3;
+            margin-bottom: 30px;
+        }
+        .list-group-item {
+            background-color: #495057;
+            border: none;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            margin-bottom: 20px;
+        }
+        .list-group-item:hover {
+            background-color: #343a40;
+            transform: scale(1.02);
+        }
+        .list-group-item a {
+            text-decoration: none;
+            color: #ffffff;
+        }
+        .list-group-item a:hover {
+            text-decoration: underline;
+        }
+        .dropdown-menu a {
+            color: #343a40;
+        }
+        .dropdown-menu a:hover {
+            background-color: #f1f1f1;
+        }
+        .btn-primary {
+            background-color: #343a40;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #343a40;
+        }
+        .main-button {
+            background: #e75e8d;
+            color: #fff;
+            border-radius: 2rem;
+            padding: 1rem 2.5rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+            box-shadow: 0 4px 24px 0 rgba(0,0,0,0.10);
+            text-decoration: none;
+            transition: background 0.2s;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Bienvenido a la Aplicación de Gestión de Jugadores Torneos de Smash</h1>
+        <p class="text-center">Utiliza las siguientes páginas para interactuar con la base de datos de jugadores y torneos:</p>
+        <div class="d-flex justify-content-between">
+            <ul class="list-group mb-3">
+                <li class="list-group-item dropdown">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownBases" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Bases
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownBases">
+                        <a class="dropdown-item" href="{% url 'view_all_players' %}">Base Jugadores</a>
+                        <a class="dropdown-item" href="{% url 'view_colombia_tournament' %}">Base Torneos</a>
+                        <a class="dropdown-item" href="{% url 'view_all_sets' %}">Base Sets</a>
+                    </div>
+                </li>
+            </ul>
+            <ul class="list-group mb-3">
+                <li class="list-group-item">
+                    <a href="{% url 'consultas_home' %}" class="btn btn-primary btn-block">Consultas</a>
+                </li>
+            </ul>
+            <ul class="list-group mb-3">
+                <li class="list-group-item dropdown">
+                    <a class="dropdown-toggle" href="#" role="button" id="dropdownSubir" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Subir Excel
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownSubir">
+                        <a class="dropdown-item" href="{% url 'upload_excel' %}">Subir Archivo Excel Torneo</a>
+                        <a class="dropdown-item" href="{% url 'upload_exceljugadores' %}">Subir Archivo Excel de Jugadores</a>
+                        <a class="dropdown-item" href="{% url 'upload_excelsets' %}">Subir Archivo Excel de Sets</a>
+                    </div>
+                </li>
+            </ul>
+        </div>
+        <div class="d-flex justify-content-center mb-4">
+            <a href="{% url 'home_page' %}" class="main-button">
+                Ir al Inicio
+            </a>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Event Info</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Obtener Información del Evento</h1>
+        <div class="mb-3">
+            <input type="text" class="form-control" id="event-id" placeholder="Event ID">
+        </div>
+        <div class="text-center mb-4">
+            <button class="btn btn-primary" id="get-info-btn">Obtener Información</button>
+        </div>
+        <div class="text-center mb-4">
+            <a href="{% url 'consultas_home' %}" class="btn btn-secondary">Volver a Consultas</a>
+        </div>
+        <div class="text-center mb-4">
+            <a id="download-xlsx-btn" class="btn btn-success" style="display: none;">Descargar XLSX</a>
+        </div>
+        <div class="form-check text-center mb-4">
+            <input class="form-check-input" type="checkbox" value="" id="auto-create-players">
+            <label class="form-check-label" for="auto-create-players">
+                Auto-crear jugadores faltantes en la BD
+            </label>
+        </div>
+        <div class="text-center mb-4">
+            <button id="open-dashboard-btn" class="btn btn-outline-primary" style="display:none;">Abrir Dashboard (Sets)</button>
+        </div>
+        <div id="loading" class="text-center" style="display: none;">Loading...</div>
+        <div id="error" class="text-center text-danger" style="display: none;"></div>
+        <div id="event-details" class="text-center mb-4" style="display: none;">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Nombre del Torneo</th>
+                        <th>Ganador</th>
+                        <th>Asistentes</th>
+                        <th>Región</th>
+                        <th>País</th>
+                        <th>Departamento</th>
+                        <th>Ciudad</th>
+                        <th>Fecha</th>
+                        <th>ID</th> <!-- Cambiado a "ID" -->
+                        <th>URL del Torneo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="tournament-name"></td>
+                        <td id="tournament-winner"></td>
+                        <td id="attendees"></td>
+                        <td id="tournament-region"></td>
+                        <td id="tournament-country"></td>
+                        <td id="tournament-department"></td>
+                        <td id="tournament-city"></td>
+                        <td id="tournament-date"></td>
+                        <td id="event-id-display"></td>
+                        <td id="tournament-url"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- La tabla de asistentes debe ir aquí, fuera del div anterior -->
+        <div id="attendees-section" class="text-center mb-4" style="display: none;">
+            <h3>Asistentes</h3>
+            <div class="mb-2">
+                <a id="download-attendees-xlsx-btn" class="btn btn-info" style="display: none;">Descargar Asistentes XLSX</a>
+            </div>
+            <table class="table table-bordered" id="attendees-table">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>GamerTag</th>
+                        <th>ID Participante</th>
+                        <th>ID Jugador</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Se llenará por JS -->
+                </tbody>
+            </table>
+        </div>
+        <!-- Contenedor del dashboard de sets -->
+        <div id="sets-dashboard" class="mb-4" style="display:none;">
+            <h3>Sets del Torneo</h3>
+            <div class="mb-2">
+                <input id="sets-filter" class="form-control" placeholder="Filtrar por jugador, fase, etc.">
+            </div>
+            <table class="table table-sm table-hover" id="sets-table">
+                <thead>
+                    <tr><th>ID Set</th><th>Evento</th><th>Ronda / Fase</th><th>Jugadores</th><th>Score</th><th>Acciones</th></tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <!-- Modal simple para detalle de set -->
+        <div class="modal" tabindex="-1" role="dialog" id="set-detail-modal" style="display:none;">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Detalle del Set</h5>
+                        <button type="button" class="close" id="close-set-modal">&times;</button>
+                    </div>
+                    <div class="modal-body" id="set-modal-body">
+                        <!-- llenado por JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.9/xlsx.full.min.js"></script>
+    <script>
+        document.getElementById('get-info-btn').addEventListener('click', async function() {
+            const eventId = document.getElementById('event-id').value;
+            const autoCreate = document.getElementById('auto-create-players').checked;
+            const loadingDiv = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const eventDetailsDiv = document.getElementById('event-details');
+            const downloadXlsxBtn = document.getElementById('download-xlsx-btn');
+
+            loadingDiv.style.display = 'block';
+            errorDiv.style.display = 'none';
+            eventDetailsDiv.style.display = 'none';
+            downloadXlsxBtn.style.display = 'none';
+
+            try {
+                const detailsResponse = await fetch(`/api/get-event-info/?event_id=${eventId}${autoCreate ? '&create_players=1' : ''}`);
+                const resp = await detailsResponse.json();
+
+                if (!detailsResponse.ok || resp.success === false) {
+                    // mostrar detalle del body si existe
+                    const msg = resp.error || 'Error al obtener la información del evento';
+                    const extra = resp.body || resp.details || resp;
+                    throw new Error(`${msg} - ${typeof extra === 'string' ? extra : JSON.stringify(extra).slice(0,500)}`);
+                }
+
+                // ahora resp contiene los campos planos que necesitamos
+                console.log('Detalles del evento (API):', resp);
+
+                document.getElementById('tournament-name').innerText = resp.tournament_name || 'N/A';
+                document.getElementById('tournament-winner').innerText = resp.winner || 'N/A';
+                document.getElementById('attendees').innerText = resp.attendees || 'N/A';
+                document.getElementById('tournament-region').innerText = resp.region || 'N/A';
+                document.getElementById('tournament-country').innerText = resp.country || 'N/A';
+                document.getElementById('tournament-department').innerText = resp.department || 'N/A';
+                document.getElementById('tournament-city').innerText = resp.city || 'N/A';
+                document.getElementById('tournament-date').innerText = resp.start_date || 'N/A';
+                document.getElementById('event-id-display').innerText = eventId;
+
+                // manejar tournament_url de forma segura
+                const tUrl = resp.tournament_url || '';
+                document.getElementById('tournament-url').innerHTML = tUrl ? `<a href="${tUrl}" target="_blank">${tUrl}</a>` : 'N/A';
+
+                // Mostrar asistentes si existen
+                const attendeesSection = document.getElementById('attendees-section');
+                const attendeesTableBody = document.querySelector('#attendees-table tbody');
+                const downloadAttendeesBtn = document.getElementById('download-attendees-xlsx-btn');
+                attendeesTableBody.innerHTML = '';
+                const attendeesList = resp.attendees_list || [];
+                if (attendeesList && attendeesList.length > 0) {
+                    attendeesList.forEach(function(att, idx) {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${idx + 1}</td>
+                            <td>${att.gamerTag || ''}</td>
+                            <td>${att.participant_id || ''}</td>
+                            <td>${att.player_id || ''}</td>
+                            <td id="action-cell-${idx}">${att.player_id ? 'Comprobando...' : 'N/A'}</td>
+                        `;
+                        attendeesTableBody.appendChild(row);
+
+                        // si tenemos player_id, pedimos al backend que verifique existencia (modo CHECK)
+                        if (att.player_id) {
+                            (async (pId, actionCellId) => {
+                                const actionCell = document.getElementById(actionCellId);
+                                try {
+                                    const resp = await fetch(`/api/ensure-player/?player_id=${pId}`);
+                                    const j = await resp.json();
+                                    if (!resp.ok || j.success === false) {
+                                        actionCell.innerText = 'Error';
+                                        actionCell.title = j.error ? JSON.stringify(j.error) : JSON.stringify(j.details || j);
+                                        // mostrar botón de reintento/crear si tenemos details
+                                        actionCell.innerHTML = `${actionCell.innerText} <button class="btn btn-sm btn-outline-primary create-player" data-player="${pId}">Agregar</button>`;
+                                    } else {
+                                        if (j.status === 'exists') {
+                                            actionCell.innerText = 'En BD';
+                                        } else if (j.status === 'missing') {
+                                            // mostrar botón para agregar
+                                            actionCell.innerHTML = `No en BD <button class="btn btn-sm btn-outline-success create-player" data-player="${pId}">Agregar</button>`;
+                                        } else {
+                                            actionCell.innerText = j.status || 'OK';
+                                        }
+                                    }
+                                } catch (e) {
+                                    actionCell.innerText = 'Error';
+                                    actionCell.title = e.message;
+                                    actionCell.innerHTML = `Error <button class="btn btn-sm btn-outline-primary create-player" data-player="${pId}">Agregar</button>`;
+                                }
+                            })(att.player_id, `action-cell-${idx}`);
+                        }
+                    });
+                    attendeesSection.style.display = 'block';
+                    downloadAttendeesBtn.style.display = 'inline-block';
+                    downloadAttendeesBtn.dataset.attendees = JSON.stringify(attendeesList);
+                } else {
+                    attendeesSection.style.display = 'none';
+                    downloadAttendeesBtn.style.display = 'none';
+                }
+
+                // si backend devolvió resumen de sincronización de jugadores lo mostramos
+                if (resp.player_sync_summary) {
+                    const s = resp.player_sync_summary;
+                    const summaryHtml = `<div class="alert alert-info mt-2">Jugadores creados: ${s.created || 0} — actualizados: ${s.updated || 0} — saltados: ${s.skipped || 0} — errores: ${s.errors ? s.errors.length : 0}</div>`;
+                    errorDiv.innerHTML = summaryHtml;
+                    errorDiv.style.display = 'block';
+                }
+
+                // Delegation: manejar clicks en botones "Agregar" (puede aparecer tras comprobación)
+                document.querySelectorAll('#attendees-table').forEach(() => {}); // no-op to ensure DOM available
+                document.addEventListener('click', async function(e) {
+                    if (e.target && e.target.classList.contains('create-player')) {
+                        const btn = e.target;
+                        const playerId = btn.dataset.player;
+                        btn.disabled = true;
+                        btn.innerText = 'Creando...';
+                        const cell = btn.closest('td');
+                        try {
+                            // Usamos create=1 vía GET para evitar CSRF en pruebas internas
+                            const resp = await fetch(`/api/ensure-player/?player_id=${playerId}&create=1`);
+                            const j = await resp.json();
+                            if (!resp.ok || j.success === false) {
+                                cell.innerText = 'Error al crear';
+                                cell.title = j.error ? JSON.stringify(j.error) : JSON.stringify(j.details || j);
+                            } else {
+                                cell.innerText = j.status === 'created' ? 'Creado' : (j.status === 'updated' ? 'Actualizado' : j.status);
+                            }
+                        } catch (err) {
+                            cell.innerText = 'Error';
+                            cell.title = err.message;
+                        } finally {
+                            // opcional: remover botón
+                        }
+                    }
+                });
+
+                eventDetailsDiv.style.display = 'block';
+                downloadXlsxBtn.style.display = 'block';
+
+                enableDashboardButton(resp.tournament_id);
+            } catch (error) {
+                console.error('Error al obtener la información del evento:', error);
+                errorDiv.innerText = error.message || 'Error al obtener la información del evento';
+                errorDiv.style.display = 'block';
+            } finally {
+                loadingDiv.style.display = 'none';
+            }
+        });
+
+        document.getElementById('download-xlsx-btn').addEventListener('click', function() {
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ["Nombre del Torneo", "Ganador", "Asistentes", "Region", "País", "Departamento", "Ciudad", "Fecha", "ID", "URL del Torneo"],
+                [
+                    document.getElementById('tournament-name').innerText,
+                    document.getElementById('tournament-winner').innerText,
+                    document.getElementById('attendees').innerText,
+                    document.getElementById('tournament-region').innerText,
+                    document.getElementById('tournament-country').innerText,
+                    document.getElementById('tournament-department').innerText,
+                    document.getElementById('tournament-city').innerText,
+                    document.getElementById('tournament-date').innerText,
+                    document.getElementById('event-id-display').innerText,
+                    document.getElementById('tournament-url').innerText
+                ]
+            ];
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, "Event Info");
+            XLSX.writeFile(wb, `event_${document.getElementById('event-id').value}.xlsx`);
+        });
+
+        document.getElementById('download-attendees-xlsx-btn').addEventListener('click', function() {
+            const attendees = JSON.parse(this.dataset.attendees || '[]');
+            const wb = XLSX.utils.book_new();
+            const ws_data = [
+                ["#", "GamerTag", "ID Participante", "ID Jugador"]
+            ];
+            attendees.forEach((att, idx) => {
+                ws_data.push([
+                    idx + 1,
+                    att.gamerTag || '',
+                    att.participant_id || '',
+                    att.player_id || ''
+                ]);
+            });
+            const ws = XLSX.utils.aoa_to_sheet(ws_data);
+            XLSX.utils.book_append_sheet(wb, ws, "Asistentes");
+            XLSX.writeFile(wb, `asistentes_evento_${document.getElementById('event-id').value}.xlsx`);
+        });
+
+        // Mostrar botón Dashboard cuando tengamos tournament_id
+        function enableDashboardButton(tournamentId) {
+            const btn = document.getElementById('open-dashboard-btn');
+            if (!tournamentId) { btn.style.display = 'none'; return; }
+            btn.style.display = 'inline-block';
+            btn.onclick = () => {
+                fetchSetsAndRender(tournamentId);
+                document.getElementById('sets-dashboard').style.display = 'block';
+                window.scrollTo({ top: document.getElementById('sets-dashboard').offsetTop, behavior: 'smooth' });
+            };
+        }
+
+        // Petición para obtener sets por torneo (usa tu endpoint existente)
+        async function fetchSetsAndRender(tournamentId) {
+            const tbody = document.querySelector('#sets-table tbody');
+            tbody.innerHTML = '<tr><td colspan="6">Cargando sets...</td></tr>';
+            try {
+                // Ajusta la URL si tu endpoint espera otro param
+                const res = await fetch(`/api/get-sets-by-tournament/?tournament_id=${tournamentId}`);
+                const data = await res.json();
+                // esperar que data sea array de sets o adaptarlo según tu API
+                const sets = Array.isArray(data) ? data : (data.results || data.sets || []);
+                renderSetsTable(sets);
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6">Error cargando sets: ${err.message}</td></tr>`;
+            }
+        }
+
+        function renderSetsTable(sets) {
+            const tbody = document.querySelector('#sets-table tbody');
+            tbody.innerHTML = '';
+            if (!sets || sets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6">No hay sets</td></tr>';
+                return;
+            }
+            sets.forEach(s => {
+                const tr = document.createElement('tr');
+                const players = `${s.player1_name || ''} vs ${s.player2_name || ''}`;
+                const score = `${s.player1_score||''} - ${s.player2_score||''}`;
+                tr.innerHTML = `
+                    <td>${s.id || ''}</td>
+                    <td>${s.event_name || ''}</td>
+                    <td>${s.phase_name || ''}</td>
+                    <td>${players}</td>
+                    <td>${score}</td>
+                    <td><button class="btn btn-sm btn-outline-secondary view-set" data-set="${s.id}">Ver</button></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            // handlers
+            document.querySelectorAll('.view-set').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const setId = e.currentTarget.dataset.set;
+                    await showSetDetail(setId);
+                });
+            });
+        }
+
+        async function showSetDetail(setId) {
+            const modal = document.getElementById('set-detail-modal');
+            const body = document.getElementById('set-modal-body');
+            body.innerHTML = 'Cargando...';
+            modal.style.display = 'block';
+            try {
+                const res = await fetch(`/api/get_set_info/?set_id=${setId}`);
+                const data = await res.json();
+                if (!data) { body.innerHTML = 'No hay datos de set.'; return; }
+                let html = `<h5>Set ${data.id}</h5>`;
+                html += `<p><strong>Torneo:</strong> ${data.event?.tournament?.name || ''} — <strong>Evento:</strong> ${data.event?.name || ''}</p>`;
+                html += `<p><strong>Ronda:</strong> ${data.fullRoundText || data.round || ''}</p>`;
+                html += `<p><strong>Jugadores:</strong><br>`;
+                (data.slots || []).forEach(s => {
+                    if (s.entrant) html += `${s.entrant.name} (ID ${s.entrant.id})<br>`;
+                });
+                html += `</p>`;
+                html += `<h6>Juegos</h6>`;
+                (data.games || []).forEach(g => {
+                    html += `<div>Juego ${g.orderNum || ''} — Ganador: ${g.winnerId || ''}<br>`;
+                    (g.selections || []).forEach(sel => {
+                        html += `${sel.entrant?.name || ''} - ${sel.character?.name || ''}<br>`;
+                    });
+                    html += `</div><hr>`;
+                });
+                body.innerHTML = html;
+            } catch (err) {
+                body.innerHTML = `Error: ${err.message}`;
+            }
+        }
+
+        document.getElementById('close-set-modal').addEventListener('click', () => {
+            document.getElementById('set-detail-modal').style.display = 'none';
+        });
+
+        // También añade filtro simple:
+        document.getElementById('sets-filter').addEventListener('input', function() {
+            const q = this.value.toLowerCase();
+            document.querySelectorAll('#sets-table tbody tr').forEach(row => {
+                const text = row.innerText.toLowerCase();
+                row.style.display = text.indexOf(q) !== -1 ? '' : 'none';
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ player.gamertag }} - Perfil</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h1>{{ player.gamertag }}</h1>
+    <p><strong>Nombre:</strong> {{ player.nombre }}</p>
+    <p><strong>Ciudad:</strong> {{ player.ciudad }}, {{ player.departamento }}</p>
+    <p><strong>Twitter:</strong> 
+      {% if player.twitter %}
+        <a href="https://twitter.com/{{ player.twitter }}" target="_blank">{{ player.twitter }}</a>
+      {% else %}
+        No disponible
+      {% endif %}
+    </p>
+
+    <h2>Personajes utilizados</h2>
+    <ul>
+      {% for uso in characters_used %}
+        <li>Game {{ uso.game_number }}: {{ uso.character.name }}</li>
+      {% empty %}
+        <li>No hay datos de personajes usados aún.</li>
+      {% endfor %}
+    </ul>
+
+    <h2>Historial de sets</h2>
+    <ul>
+      {% for s in sets %}
+        <li>
+          {{ s.player_1.gamertag }} ({{ s.player_1_score }}) vs {{ s.player_2.gamertag }} ({{ s.player_2_score }})<br>
+          <small>Evento: {{ s.event.name }} | Ganador: {{ s.winner.gamertag }}</small>
+        </li>
+      {% empty %}
+        <li>Sin sets registrados.</li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>
